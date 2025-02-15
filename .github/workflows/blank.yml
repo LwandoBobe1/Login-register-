@@ -1,0 +1,90 @@
+import re
+
+class UserRegistration:
+    def __init__(self):
+        self.get_username()
+    
+    def get_username(self):
+        print("Enter a New Username/E-mail:")
+        username = input("Username:\t")
+        self.username = username
+        if ("@" in username and "." in username and username[0].isalpha() and 
+                not re.findall('@\.+', username) and re.search('@gmail.com', username)):
+            self.get_password()
+        else:
+            print("Invalid Username/Email\nPlease use the format: 'example@gmail.com'\nTry again...")
+            self.get_username()
+    
+    def get_password(self):
+        print('-' * 100)
+        print("Password requirements:\n1. 5-16 characters\n2. At least one special character\n3. At least one digit\n4. One uppercase & one lowercase letter")
+        print('-' * 100)
+        password = input("Password:\t")
+        self.password = password
+        
+        if 5 < len(password) < 16:
+            if any(char.isdigit() for char in password) and any(char.isupper() for char in password) and \
+               any(char.islower() for char in password) and re.findall('[@_!#$%^&*()<>?/\\|}{~:]', password):
+                with open("projectdatabase.txt", "a+") as file:
+                    file.write(f"{self.username}, {self.password}\n")
+                print('-' * 100)
+                print("Successfully Registered. Please Log in.")
+                print('-' * 100)
+                UserLogin()
+            else:
+                print("Password must contain at least one number, uppercase, lowercase, and special character.")
+                self.get_password()
+        else:
+            print("Password must be between 5 and 16 characters.")
+            self.get_password()
+
+class UserLogin:
+    def __init__(self):
+        print("Enter your Login Details:")
+        self.username = input("Username:\t")
+        self.password = input("Password:\t")
+        self.validate()
+    
+    def forgot_password(self):
+        with open("projectdatabase.txt", "r") as file:
+            users = dict(line.strip().split(', ') for line in file)
+        print('-' * 100)
+        self.username = input("Username:\t")
+        if self.username in users:
+            print("Your Password is:", users[self.username])
+        else:
+            print("Username does not exist. Please register to continue.")
+            UserRegistration()
+    
+    def validate(self):
+        with open("projectdatabase.txt", "r") as file:
+            users = dict(line.strip().split(', ') for line in file)
+        
+        if self.username in users:
+            if self.password == users[self.username]:
+                print('-' * 100)
+                print("Login Successful. Welcome!")
+                print('-' * 100)
+            else:
+                print("Invalid Password")
+                print('-' * 100)
+                print("Forgot Password? (Y/N)")
+                if input().upper() == 'Y':
+                    self.forgot_password()
+                else:
+                    UserLogin()
+        else:
+            print("Username does not exist. Please register to continue.")
+            UserRegistration()
+
+print("REGISTRATION & LOGIN SYSTEM".center(100))
+print("Register / Login")
+print("To Register press -> R")
+print("To Login press -> L")
+user_choice = input().upper()
+
+if user_choice == 'R':
+    UserRegistration()
+elif user_choice == 'L':
+    UserLogin()
+
